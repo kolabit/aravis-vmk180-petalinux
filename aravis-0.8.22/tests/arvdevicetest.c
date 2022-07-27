@@ -91,6 +91,10 @@ main (int argc, char **argv)
 		double v_double_max;
 		const char *v_string;
 		gboolean v_boolean;
+		gchar *imgFileName;
+		guint64 frameID;
+		const void *imgData;
+		size_t imgSize;
 
 		genicam = arv_device_get_genicam (device);
 
@@ -120,6 +124,12 @@ main (int argc, char **argv)
 		node = arv_gc_get_node (genicam, "DeviceID");
 		v_string = arv_gc_string_get_value (ARV_GC_STRING (node), NULL);
 		g_print ("device id     = %s\n", v_string);
+		node = arv_gc_get_node (genicam, "CameraHeadFirmwareVersion");
+		value = arv_gc_integer_get_value (ARV_GC_INTEGER (node), NULL);
+		g_print ("fw_version = %x\n", value);
+		node = arv_gc_get_node (genicam, "CameraHeadFirmwareBuild");
+		value = arv_gc_integer_get_value (ARV_GC_INTEGER (node), NULL);
+		g_print ("fw_build = %x\n", value);
 		node = arv_gc_get_node (genicam, "SensorWidth");
 		value = arv_gc_integer_get_value (ARV_GC_INTEGER (node), NULL);
 		g_print ("sensor width  = %d\n", value);
@@ -218,8 +228,17 @@ main (int argc, char **argv)
 			g_usleep (100000);
 
 			do  {
+				
 				buffer = arv_stream_try_pop_buffer (stream);
 				if (buffer != NULL) {
+					// save eacth 10th image to RAW file
+					frameID = arv_buffer_get_frame_id(buffer);
+					if( 0==(frameID%10) ) {
+						imgFileName = g_strdup_printf("%08ld.raw", frameID);
+						imgData = arv_buffer_get_data(buffer, &imgSize);
+						g_file_set_contents(imgFileName, imgData, imgSize, &error);
+						
+					}
 					arv_stream_push_buffer (stream, buffer);
 					buffer_count++;
 				}

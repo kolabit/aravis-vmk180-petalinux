@@ -362,10 +362,22 @@ arv_gv_device_read_memory (ArvDevice *device, guint64 address, guint32 size, voi
 
 	for (i = 0; i < (size + ARV_GVCP_DATA_SIZE_MAX - 1) / ARV_GVCP_DATA_SIZE_MAX; i++) {
 		block_size = MIN (ARV_GVCP_DATA_SIZE_MAX, size - i * ARV_GVCP_DATA_SIZE_MAX);
-		if (!_read_memory (priv->io_data,
-				   address + i * ARV_GVCP_DATA_SIZE_MAX,
-				   block_size, ((char *) buffer) + i * ARV_GVCP_DATA_SIZE_MAX, error))
-			return FALSE;
+
+		if(block_size != 4) {
+			if (!_read_memory (priv->io_data,
+					   address + i * ARV_GVCP_DATA_SIZE_MAX,
+					   block_size, ((char *) buffer) + i * ARV_GVCP_DATA_SIZE_MAX, error))
+				return FALSE;
+		}
+		else {
+			uint32_t value;
+			if(!_read_register (priv->io_data,
+						address + i * ARV_GVCP_DATA_SIZE_MAX,
+						&value, error))
+				return FALSE;
+			*(uint32_t*)(((char *) buffer) + i * ARV_GVCP_DATA_SIZE_MAX) = g_htonl(value);
+		}
+
 	}
 
 	return TRUE;
@@ -380,10 +392,19 @@ arv_gv_device_write_memory (ArvDevice *device, guint64 address, guint32 size, vo
 
 	for (i = 0; i < (size + ARV_GVCP_DATA_SIZE_MAX - 1) / ARV_GVCP_DATA_SIZE_MAX; i++) {
 		block_size = MIN (ARV_GVCP_DATA_SIZE_MAX, size - i * ARV_GVCP_DATA_SIZE_MAX);
-		if (!_write_memory (priv->io_data,
-				    address + i * ARV_GVCP_DATA_SIZE_MAX,
-				    block_size, ((char *) buffer) + i * ARV_GVCP_DATA_SIZE_MAX, error))
-			return FALSE;
+		
+		if(block_size != 4) {
+			if (!_write_memory (priv->io_data,
+					    address + i * ARV_GVCP_DATA_SIZE_MAX,
+					    block_size, ((char *) buffer) + i * ARV_GVCP_DATA_SIZE_MAX, error))
+				return FALSE;
+		}
+		else {
+			if(!_write_register (priv->io_data,
+						address + i * ARV_GVCP_DATA_SIZE_MAX,
+						g_htonl(*(uint32_t*)(((char *) buffer) + i * ARV_GVCP_DATA_SIZE_MAX)), error))
+				return FALSE;
+		}
 	}
 
 	return TRUE;

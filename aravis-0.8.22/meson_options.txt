@@ -1,9 +1,9 @@
 # Features
 
-option('viewer', type: 'feature', value: 'auto', description : 'Build simple viewer')
-option('gst-plugin', type: 'feature', value: 'auto', description : 'Build GStreamer plugin')
-option('usb', type: 'feature', value: 'auto', description : 'Enable USB support')
-option('packet-socket', type: 'feature', value: 'auto', description : 'Enable packet socket support')
+option('viewer', type: 'feature', value: 'disabled', description : 'Build simple viewer')
+option('gst-plugin', type: 'feature', value: 'disabled', description : 'Build GStreamer plugin')
+option('usb', type: 'feature', value: 'disabled', description : 'Enable USB support')
+option('packet-socket', type: 'feature', value: 'enabled', description : 'Enable packet socket support')
 
 option('tests', type: 'boolean', value: true, description: 'Build tests')
 option('fast-heartbeat', type: 'boolean', value: false, description: 'Enable faster heartbeat rate')
@@ -14,5 +14,5 @@ option('gv-n-buffers', type: 'integer', min: 1, value: 16, description: 'Number 
 
 # Documentation and introspection
 
-option('introspection', type: 'feature', value: 'auto', description: 'Build introspection data (requires gobject-introspection)')
+option('introspection', type: 'feature', value: 'disabled', description: 'Build introspection data (requires gobject-introspection)')
 option('documentation', type: 'feature', value: 'disabled', description: 'Build documentation (requires gi-docgen)')
